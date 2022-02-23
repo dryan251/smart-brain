@@ -1,13 +1,13 @@
-import React from "react";
-import { useState } from "react";
+import React from 'react';
+import { useState } from 'react';
 import {
   Dropdown,
   DropdownItem,
   DropdownMenu,
   DropdownToggle,
-} from "reactstrap";
+} from 'reactstrap';
 
-const ProfileIcon = () => {
+const ProfileIcon = ({ onRouteChange, toggleModal }) => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
   const handleToggle = () => {
@@ -15,24 +15,26 @@ const ProfileIcon = () => {
   };
 
   return (
-    <div className='pa4 tc'>
+    <div className="pa4 tc">
       <Dropdown isOpen={dropdownOpen} toggle={handleToggle}>
-        <DropdownToggle data-toggle='dropdown' tag='span'>
+        <DropdownToggle data-toggle="dropdown" tag="span">
           <img
-            src='http://tachyons.io/img/logo.jpg'
-            className='br-100 ba h3 w3 dib'
-            alt='avatar'
+            src="http://tachyons.io/img/logo.jpg"
+            className="br-100 ba h3 w3 dib"
+            alt="avatar"
           />
         </DropdownToggle>
         <DropdownMenu
-          className='b--transparent shadow-5'
+          className="b--transparent shadow-5"
           style={{
-            marginTop: "20px",
-            backgroundColor: "rgba(255,255,255, 0.5)",
+            marginTop: '20px',
+            backgroundColor: 'rgba(255,255,255, 0.5)',
           }}
         >
-          <DropdownItem>View Profile</DropdownItem>
-          <DropdownItem>Sign out</DropdownItem>
+          <DropdownItem onClick={toggleModal}>View Profile</DropdownItem>
+          <DropdownItem onClick={() => onRouteChange('signin')}>
+            Sign out
+          </DropdownItem>
         </DropdownMenu>
       </Dropdown>
     </div>

@@ -1,13 +1,15 @@
-import React, { Component } from "react";
-import Particles from "react-particles-js";
-import FaceRecognition from "./components/FaceRecognition/FaceRecognition";
-import Navigation from "./components/Navigation/Navigation";
-import Signin from "./components/Signin/Signin";
-import Register from "./components/Register/Register";
-import Logo from "./components/Logo/Logo";
-import ImageLinkForm from "./components/ImageLinkForm/ImageLinkForm";
-import Rank from "./components/Rank/Rank";
-import "./App.css";
+import React, { Component } from 'react';
+import Particles from 'react-particles-js';
+import FaceRecognition from './components/FaceRecognition/FaceRecognition';
+import Navigation from './components/Navigation/Navigation';
+import Signin from './components/Signin/Signin';
+import Register from './components/Register/Register';
+import Logo from './components/Logo/Logo';
+import ImageLinkForm from './components/ImageLinkForm/ImageLinkForm';
+import Rank from './components/Rank/Rank';
+import './App.css';
+import Modal from './components/Modal/Modal';
+import Profile from './components/Profile/Profile';
 
 const particlesOptions = {
   //customize this to your liking
@@ -23,17 +25,20 @@ const particlesOptions = {
 };
 
 const initialState = {
-  input: "",
-  imageUrl: "",
+  input: '',
+  imageUrl: '',
   boxes: [],
-  route: "home",
+  route: 'home',
   isSignedIn: true,
+  isProfileOpen: false,
   user: {
-    id: "",
-    name: "",
-    email: "",
+    id: '',
+    name: '',
+    email: '',
     entries: 0,
-    joined: "",
+    joined: '',
+    pet: '',
+    age: '',
   },
 };
 
@@ -59,7 +64,7 @@ class App extends Component {
     return data.outputs[0].data.regions.map((face) => {
       const clarifaiFace = face.region_info.bounding_box;
 
-      const image = document.getElementById("inputimage");
+      const image = document.getElementById('inputimage');
       const width = Number(image.width);
       const height = Number(image.height);
       return {
@@ -81,9 +86,9 @@ class App extends Component {
 
   onButtonSubmit = () => {
     this.setState({ imageUrl: this.state.input });
-    fetch("http://localhost:3000/imageurl", {
-      method: "post",
-      headers: { "Content-Type": "application/json" },
+    fetch('http://localhost:3000/imageurl', {
+      method: 'post',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         input: this.state.input,
       }),
@@ -91,9 +96,9 @@ class App extends Component {
       .then((response) => response.json())
       .then((response) => {
         if (response) {
-          fetch("http://localhost:3000/image", {
-            method: "put",
-            headers: { "Content-Type": "application/json" },
+          fetch('http://localhost:3000/image', {
+            method: 'put',
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
               id: this.state.user.id,
             }),
@@ -110,24 +115,42 @@ class App extends Component {
   };
 
   onRouteChange = (route) => {
-    if (route === "signout") {
+    if (route === 'signout') {
       this.setState(initialState);
-    } else if (route === "home") {
+    } else if (route === 'home') {
       this.setState({ isSignedIn: true });
     }
     this.setState({ route: route });
   };
 
+  toggleModal = () => {
+    this.setState((prevState) => ({
+      ...prevState,
+      isProfileOpen: !prevState.isProfileOpen,
+    }));
+  };
+
   render() {
-    const { isSignedIn, imageUrl, route, boxes } = this.state;
+    const { isSignedIn, imageUrl, route, boxes, isProfileOpen, user } =
+      this.state;
     return (
-      <div className='App'>
-        <Particles className='particles' params={particlesOptions} />
+      <div className="App">
+        <Particles className="particles" params={particlesOptions} />
         <Navigation
           isSignedIn={isSignedIn}
           onRouteChange={this.onRouteChange}
+          toggleModal={this.toggleModal}
         />
-        {route === "home" ? (
+        {isProfileOpen ? (
+          <Modal>
+            <Profile
+              isProfileOpen={isProfileOpen}
+              toggleModal={this.toggleModal}
+              user={user}
+            ></Profile>
+          </Modal>
+        ) : null}
+        {route === 'home' ? (
           <div>
             <Logo />
             <Rank
@@ -140,7 +163,7 @@ class App extends Component {
             />
             <FaceRecognition boxes={boxes} imageUrl={imageUrl} />
           </div>
-        ) : route === "signin" ? (
+        ) : route === 'signin' ? (
           <Signin loadUser={this.loadUser} onRouteChange={this.onRouteChange} />
         ) : (
           <Register
